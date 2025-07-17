@@ -1,53 +1,52 @@
 package com.jpmc.midascore.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 public class TransactionRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "sender_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
     private UserRecord sender;
 
-    @ManyToOne
-    @JoinColumn(name = "recipient_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
     private UserRecord recipient;
 
     @Column(nullable = false)
     private float amount;
 
-    public TransactionRecord() {}
+    @Column(nullable = false)
+    private float incentive;
 
-    public TransactionRecord(UserRecord sender, UserRecord recipient, float amount) {
+    // Required no-arg constructor
+    protected TransactionRecord() {}
+
+    public TransactionRecord(UserRecord sender, UserRecord recipient,
+                             float amount, float incentive) {
         this.sender = sender;
         this.recipient = recipient;
         this.amount = amount;
+        this.incentive = incentive;
     }
 
-    public Long getId() {
-        return id;
+    // Custom equals/hashCode excluding relationships
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TransactionRecord)) return false;
+        return id != null && id.equals(((TransactionRecord) o).getId());
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
-
-    public void setSender(UserRecord sender) {
-        this.sender = sender;
-    }
-
-    public void setRecipient(UserRecord recipient) {
-        this.recipient = recipient;
-    }
-
-    public void setAmount(float amount) {
-        this.amount = amount;
-    }
-
-    public UserRecord getSender() { return sender; }
-    public UserRecord getRecipient() { return recipient; }
-    public float getAmount() { return amount; }
 }
